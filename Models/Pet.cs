@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
 namespace pet_hotel.Models;
@@ -13,21 +14,22 @@ public enum PetColor
 public class Pet
 {
    public int Id { get; set; }
-   [Required]
 
+   [Required]
    public string Name { get; set; }
-   [Required]
-
-   public PetColor Color { get; set; }
-   [Required]
-
-   public DateTime? CheckedInAt { get; set; }
 
    [Required]
+   [JsonConverter(typeof(JsonStringEnumConverter))]
    public PetBreed Breed { get; set; }
 
    [Required]
    [JsonConverter(typeof(JsonStringEnumConverter))]
+   public PetColor Color { get; set; }
+
+   public DateTime? CheckedInAt { get; set; }
+
+   [Required]
+   // [JsonConverter(typeof(JsonStringEnumConverter))]
    public int PetOwnerid { get; set; }
 
 }
