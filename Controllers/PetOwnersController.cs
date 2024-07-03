@@ -17,7 +17,7 @@ public class PetOwnersController : ControllerBase
    [HttpGet]
    public IEnumerable<PetOwner> GetAll()
    {
-      return _context.PetOwners;
+      return _context.PetOwners.Include(owner => owner.Pets);
    }
 
    [HttpGet("{id}")]
@@ -39,17 +39,25 @@ public class PetOwnersController : ControllerBase
       _context.Add(owner);
       _context.SaveChanges();
 
-      return Created($"/api/pets/{owner.Id}", null);
+      return Created($"/api/pets/{owner.Id}", owner);
    }
 
    [HttpDelete("{id}")]
    public IActionResult DeleteOwner(int id)
    {
-      PetOwner owner = _context.PetOwners.SingleOrDefault(owner => owner.Id == id);
+      PetOwner owner = _context.PetOwners.SingleOrDefault(o => o.Id == id);
       _context.Remove(owner);
       _context.SaveChanges();
-      return Ok();
+      return NoContent();
    }
 
+   [HttpPut("{id}")]
+   public PetOwner UpdateOwner(int id, PetOwner owner)
+   {
+      owner.Id = id;
+      _context.Update(owner);
+      _context.SaveChanges();
 
+      return owner;
+   }
 }

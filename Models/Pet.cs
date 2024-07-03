@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
@@ -29,7 +30,9 @@ public class Pet
    public DateTime? CheckedInAt { get; set; }
 
    [Required]
-   // [JsonConverter(typeof(JsonStringEnumConverter))]
    public int PetOwnerid { get; set; }
+
+   [ForeignKey("PetOwnerid")]
+   public PetOwner petOwner { get; set; }
 
 }

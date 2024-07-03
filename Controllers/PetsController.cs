@@ -19,7 +19,7 @@ public class PetsController : ControllerBase
    [HttpGet]
    public IEnumerable<Pet> GetPets()
    {
-      return _context.Pets.ToList();
+      return _context.Pets.Include(p => p.petOwner);
    }
 
    [HttpGet("{petId}")]
@@ -36,15 +36,79 @@ public class PetsController : ControllerBase
    [HttpPost]
    public IActionResult CreatePet([FromBody] Pet newPet)
    {
-      _context.Pets.Add(newPet);
+      _context.Add(newPet);
       _context.SaveChanges();
-      return Created($"/api/pets/{newPet.Id}", null);
+
+      Pet CreatedPet = _context.Pets.OrderByDescending(p => p.Id).Include(p => p.petOwner).FirstOrDefault();
+
+
+      return Created($"/api/pets/{newPet.Id}", CreatedPet);
    }
 
-   // [HttpPut]
+   [HttpPut("{petId}")]
 
-   // public IActionResult UpdatePet( [FromBody] Pet newPet) 
-   // {
+   public Pet UpdatePet(int petId, [FromBody] Pet updatePet)
+   {
+      updatePet.Id = petId;
 
-   // }
+      _context.Pets.Update(updatePet);
+      _context.SaveChanges();
+
+      return updatePet;
+   }
+
+
+   [HttpDelete("{petId}")]
+   public IActionResult Delete(int petId)
+   {
+      Pet pet = _context.Pets.Find(petId);
+
+      if (pet == null)
+      {
+         return NotFound();
+      }
+
+      _context.Pets.Remove(pet);
+      _context.SaveChanges();
+
+      return NoContent();
+   }
+
+
+   [HttpPut("{petId}/checkin")]
+
+   public IActionResult CheckIn(int petId)
+   {
+      Pet pet = _context.Pets.SingleOrDefault(pet => pet.Id == petId);
+
+      pet.CheckedInAt = DateTime.Now.ToUniversalTime();
+
+      _context.Pets.Update(pet);
+
+      _context.SaveChanges();
+
+      return Ok(pet);
+
+
+   }
+
+
+
+   [HttpPut("{petId}/checkout")]
+
+   public IActionResult Checkout(int petId)
+   {
+      Pet pet = _context.Pets.SingleOrDefault(pet => pet.Id == petId);
+
+      pet.CheckedInAt = null;
+
+      _context.Pets.Update(pet);
+
+      _context.SaveChanges();
+
+      return Ok(pet);
+
+
+   }
+
 }
